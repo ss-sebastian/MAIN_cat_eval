@@ -1,0 +1,7 @@
+# Core runtime has no third-party dependencies (Python 3.9+).
+
+# Optional: only needed for the openai_compat adapter.
+openai>=1.0
+
+# Optional: only needed to run tests via `pytest` (tests/run_all.py needs nothing).
+pytest>=7.0
