@@ -1,0 +1,86 @@
+{
+  "_comment": "Model registry for out-of-the-box multi-provider evaluation. Providers expose OpenAI-compatible Chat Completions endpoints (no gateway needed). Model names change frequently - verify/update them against each provider before running. API keys are NOT stored here; they are read from the environment variable named by api_key_env.",
+  "providers": {
+    "openai": {
+      "base_url": null,
+      "api_key_env": "OPENAI_API_KEY"
+    },
+    "gemini": {
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+      "api_key_env": "GEMINI_API_KEY"
+    },
+    "deepseek": {
+      "base_url": "https://api.deepseek.com",
+      "api_key_env": "DEEPSEEK_API_KEY"
+    },
+    "dashscope": {
+      "base_url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+      "api_key_env": "DASHSCOPE_API_KEY"
+    },
+    "zhipu": {
+      "base_url": "https://open.bigmodel.cn/api/paas/v4",
+      "api_key_env": "ZHIPUAI_API_KEY"
+    }
+  },
+  "models": {
+    "gpt-frontier": {
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "tier": "frontier"
+    },
+    "gpt-mini": {
+      "provider": "openai",
+      "model": "gpt-4.1-mini",
+      "tier": "cheap"
+    },
+    "o4-mini": {
+      "provider": "openai",
+      "model": "o4-mini",
+      "tier": "reasoning",
+      "params": {
+        "drop_temperature": true,
+        "use_max_completion_tokens": true,
+        "drop_seed": true
+      }
+    },
+    "gemini-pro": {
+      "provider": "gemini",
+      "model": "gemini-2.5-pro",
+      "tier": "frontier"
+    },
+    "gemini-flash": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "tier": "cheap"
+    },
+    "deepseek-chat": {
+      "provider": "deepseek",
+      "model": "deepseek-chat",
+      "tier": "zh"
+    },
+    "deepseek-reasoner": {
+      "provider": "deepseek",
+      "model": "deepseek-reasoner",
+      "tier": "reasoning",
+      "params": {
+        "drop_temperature": true,
+        "drop_seed": true
+      }
+    },
+    "qwen-max": {
+      "provider": "dashscope",
+      "model": "qwen-max",
+      "tier": "zh"
+    },
+    "qwen-turbo": {
+      "provider": "dashscope",
+      "model": "qwen-turbo",
+      "tier": "cheap"
+    },
+    "glm-4": {
+      "provider": "zhipu",
+      "model": "glm-4",
+      "tier": "zh"
+    }
+  }
+}

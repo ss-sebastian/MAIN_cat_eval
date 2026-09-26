@@ -60,6 +60,9 @@ def evaluate_one(
                 "repeat_id": r,
                 "model": ctx["model"],
                 "adapter": ctx["adapter"],
+                "model_key": ctx.get("model_key"),
+                "provider": ctx.get("provider"),
+                "base_url": ctx.get("base_url"),
                 "template_hash": ctx["template_hash"],
                 "template_path": ctx["template_path"],
                 "demonstration_ids": ctx["demonstration_ids"],
@@ -97,6 +100,7 @@ def run_experiment(
     output_dir: str | Path,
     experiment_id: str,
     force: bool = False,
+    model_meta: dict | None = None,
 ) -> list[dict]:
     """Run one (n_shots, sample_seed) condition and save results."""
     validate_child_separation(examples, eval_samples)
@@ -104,6 +108,7 @@ def run_experiment(
     demos_text = format_demonstrations(demos)
     demo_ids = [d.sample_id for d in demos]
 
+    model_meta = model_meta or {}
     th = template_hash(template)
     ctx = {
         "experiment_id": experiment_id,
@@ -111,6 +116,9 @@ def run_experiment(
         "sample_seed": sample_seed,
         "model": model,
         "adapter": adapter.name,
+        "model_key": model_meta.get("key"),
+        "provider": model_meta.get("provider"),
+        "base_url": model_meta.get("base_url"),
         "template_hash": th,
         "template_path": str(template_path),
         "demonstration_ids": demo_ids,
@@ -140,6 +148,9 @@ def run_experiment(
         "repeats": repeats,
         "model": model,
         "adapter": adapter.name,
+        "model_key": model_meta.get("key"),
+        "provider": model_meta.get("provider"),
+        "base_url": model_meta.get("base_url"),
         "settings": settings,
         "generation_seed": generation_seed,
         "max_transport_retries": max_transport_retries,
@@ -188,8 +199,10 @@ def run_sweep(
     max_transport_retries: int,
     output_dir: str | Path,
     force: bool = False,
+    model_meta: dict | None = None,
 ) -> list[dict]:
     """Run every (n_shots, sample_seed) condition under a shared output dir."""
+    model_meta = model_meta or {}
     output_dir = Path(output_dir)
     all_records: list[dict] = []
     summary = []
@@ -200,7 +213,8 @@ def run_sweep(
         else:
             subdir = output_dir / f"shot_{k}_seed_{seed}"
             label = f"shots={k},seed={seed}"
-        eid = f"main_cat_{label.replace(',', '_').replace('=', '')}"
+        prefix = f"{model_meta.get('key')}_" if model_meta.get("key") else ""
+        eid = f"main_cat_{prefix}{label.replace(',', '_').replace('=', '')}"
         records = run_experiment(
             examples,
             eval_samples,
@@ -217,6 +231,7 @@ def run_sweep(
             output_dir=subdir,
             experiment_id=eid,
             force=force,
+            model_meta=model_meta,
         )
         all_records.extend(records)
         summary.append(

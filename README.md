@@ -11,6 +11,40 @@ LLM auto-scoring + few-shot experiments for Cantonese MAIN "Cat story" narrative
 pip install openai
 ```
 
+## Models
+
+Models are defined in `models/registry.json` (editable without touching code). Each alias maps to a
+provider endpoint + API-key env var, so models from different providers run **out of the box** (no
+gateway):
+
+```json
+{
+  "providers": {
+    "openai":    { "base_url": null, "api_key_env": "OPENAI_API_KEY" },
+    "gemini":    { "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/", "api_key_env": "GEMINI_API_KEY" },
+    "deepseek":  { "base_url": "https://api.deepseek.com", "api_key_env": "DEEPSEEK_API_KEY" },
+    "dashscope": { "base_url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", "api_key_env": "DASHSCOPE_API_KEY" },
+    "zhipu":     { "base_url": "https://open.bigmodel.cn/api/paas/v4", "api_key_env": "ZHIPUAI_API_KEY" }
+  },
+  "models": {
+    "gpt-frontier":  { "provider": "openai",   "model": "gpt-4.1",       "tier": "frontier" },
+    "deepseek-chat": { "provider": "deepseek", "model": "deepseek-chat", "tier": "zh" },
+    "o4-mini":       { "provider": "openai",   "model": "o4-mini",      "tier": "reasoning",
+                       "params": { "drop_temperature": true, "use_max_completion_tokens": true } }
+  }
+}
+```
+
+- `--model ALIAS` — resolve an alias (or a raw model name) to its endpoint + key env var.
+- `--models a b c` — run a **series** of models in one command (one subdir per model).
+- `--model-tier frontier` — run every model in a tier (`frontier` / `reasoning` / `zh` / `cheap`).
+- `--models-file PATH` — use a different registry (default `models/registry.json`).
+- Set each provider's key in its own env var (e.g. `export DEEPSEEK_API_KEY=...`).
+
+> Model names change frequently — update `models/registry.json` against each provider before
+> running. Anthropic Claude has no native OpenAI-compatible endpoint, so it is **not** in the
+> registry (it would require a gateway).
+
 ## Offline check (no API call)
 
 ```bash
@@ -93,9 +127,13 @@ One child's complete Cat story per line:
 | `--n-shots` | demonstrations per prompt (non-negative integer) |
 | `--sample-seed` | seed for demonstration selection/ordering |
 | `--repeats` | repeated identical calls per story |
-| `--model` | model name (required for `openai_compat`) |
+| `--model` | model name or registry alias (required for `openai_compat`) |
+| `--models` | run a series: one or more model names / aliases |
+| `--model-tier` | run a series: all registry models in a tier |
+| `--models-file` | path to the model registry JSON |
 | `--adapter` | `openai_compat` (default) or `mock` |
-| `--api-key-env` | env var holding the API key (default `OPENAI_API_KEY`) |
+| `--api-key-env` | fallback env var holding the API key (default `OPENAI_API_KEY`) |
+| `--base-url` | optional API base URL (overrides the registry) |
 | `--temperature` / `--max-tokens` | inference settings |
 | `--generation-seed` | optional model generation seed (independent of sampling seed) |
 | `--dry-run` | use the mock adapter (no API call) |

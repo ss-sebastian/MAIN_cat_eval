@@ -24,6 +24,7 @@ MODULES = [
     "test_response",
     "test_metrics",
     "test_agreement",
+    "test_registry",
     "test_e2e",
 ]
 
